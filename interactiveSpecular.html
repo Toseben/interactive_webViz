@@ -185,7 +185,7 @@
 		         
 		    view = pos - cameraPosition;
 
-		    vUv = uv * repeatUV;
+		    vUv = uv * 4.0;
 		}
 
 	</script>
@@ -197,55 +197,18 @@
 
 	<script type="x-shader/x-vertex" id="fragmentTestShader">
 
-		varying vec3 pos, view;
 		varying vec2 vUv;
-		varying mat3 tbnMatrix;
 		uniform samplerCube envMap;
-		uniform sampler2D normalMap;
 		uniform sampler2D diffuseMap;
-		uniform sampler2D specularMap;
-		uniform float bumpiness;
-
-		const vec3 cubeMapSize = vec3( 200., 100., 300. ) - vec3( 5. );
-		const vec3 cubeMapPos = vec3( 0., 0., 0. ); 
-
-		vec3 parallaxCorrectNormal( vec3 v, vec3 cubeSize, vec3 cubePos ) {
-
-		    vec3 nDir = normalize(v);
-		    vec3 rbmax = (   .5 * ( cubeSize - cubePos ) - pos ) / nDir;
-		    vec3 rbmin = ( - .5 * ( cubeSize - cubePos ) - pos ) / nDir;
-		    
-		    vec3 rbminmax;
-		    rbminmax.x = ( nDir.x > 0. )?rbmax.x:rbmin.x;
-		    rbminmax.y = ( nDir.y > 0. )?rbmax.y:rbmin.y;
-		    rbminmax.z = ( nDir.z > 0. )?rbmax.z:rbmin.z;
-
-		    float correction = min(min(rbminmax.x, rbminmax.y), rbminmax.z);
-		    vec3 boxIntersection = pos + nDir * correction;
-		    
-		    return boxIntersection - cubePos;
-		}
+		uniform sampler2D normalMap;
 
 		void main()  {
 
-		    vec3 vVec = normalize( view );  
-
-		    vec4 bumpNormal = texture2D( normalMap, vUv );  
-
-		    vec3 n = bumpNormal.rgb * 2.0 - 1.0;
-		    vec3 modifiedTangent = normalize( vec3( n.xy * bumpiness, sqrt( 1. - n.y * n.y - n.x * n.x ) ) );
-		    vec3 nVec = tbnMatrix * modifiedTangent;
-		      
-		    vec3 rVec = parallaxCorrectNormal( reflect( vVec, nVec ), cubeMapSize, cubeMapPos );
-		    vec3 env = textureCube( envMap, rVec ).rgb;
-
+			vec4 bumpNormal = texture2D( normalMap, vUv );  
+			vec3 n = bumpNormal.rgb * 2.0 - 1.0;
+			vec4 diffuseColor = textureCube( envMap, n );
 		    vec3 diffuse = texture2D( diffuseMap, vUv ).rgb;
-		    vec3 specular = texture2D( specularMap, vUv ).rgb;
-		    
-		    vec3 dN = parallaxCorrectNormal( nVec, cubeMapSize, cubeMapPos ).rgb;
-		    vec4 diffuseColor = ( 2. / sqrt( length( dN ) ) ) *  textureCube( envMap, dN );
-		    
-		    gl_FragColor = vec4( diffuse, 1. );
+		    gl_FragColor = diffuseColor;
 
 		}
 
@@ -293,11 +256,9 @@
 
 	var container, controls, loader;
 	var camera, scene, renderer;
-	var cubeCamera, baseMaterial, diffuseTexture;
+	var cubeCamera, baseMaterial;
 	var mSphere, cubeMapFlatView;
 	var initMaterial, flatMaterial, shinyMaterial;
-
-	var diffuseTexture, normalTexture, specularTexture, displacementTexture;
 
 	init();
 
@@ -349,6 +310,8 @@
 		controls = new THREE.OrbitControls( camera, renderer.domElement );
 		controls.center = new THREE.Vector3(0, 1.25, 1);
 
+		var diffuseTexture, normalTexture, specularTexture, displacementTexture;
+
 		function prepare() {
 
 			// Create Skybox
@@ -388,6 +351,14 @@
 				fragmentShader: fragmentPrefix + document.getElementById( 'fragmentTestShader' ).textContent
 			} );
 
+            shinyMaterial.uniforms.normalMap.value.wrapS = 
+            shinyMaterial.uniforms.normalMap.value.wrapT =
+            shinyMaterial.uniforms.diffuseMap.value.wrapS = 
+            shinyMaterial.uniforms.diffuseMap.value.wrapT =
+            shinyMaterial.uniforms.specularMap.value.wrapS = 
+            shinyMaterial.uniforms.specularMap.value.wrapT =
+            THREE.RepeatWrapping; 
+
 			// Display CubeMap
 			var mSphereGeo =  new THREE.SphereGeometry( 0.25, 32, 32 );
 			var mSphereMat = new THREE.MeshBasicMaterial( { envMap: cubeCamera.renderTarget.texture } );
@@ -399,13 +370,16 @@
 
 		}
 
-		var t = new THREE.TextureLoader();
+		var l = new THREE.LoadingManager( function() { 
+			console.log( 'onLoad' ); 
+			prepare(); 
+		} );
+
+		var t = new THREE.TextureLoader( l );
 		t.load( 'img/diffuse_map.jpg', function( t ) { diffuseTexture = t; } );
 		t.load( 'img/specular_map.jpg', function( t ) { specularTexture = t; } );
 		t.load( 'img/normal_map.png', function( t ) { normalTexture = t; } );
 		t.load( 'img/displacement_map.jpg', function( t ) { displacementTexture = t; } );
-
-		prepare();
 
 	}
 
