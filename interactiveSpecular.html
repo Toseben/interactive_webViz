@@ -185,7 +185,7 @@
 		         
 		    view = pos - cameraPosition;
 
-		    vUv = uv * 4.0;
+		    vUv = uv * 6.0;
 		}
 
 	</script>
@@ -258,7 +258,7 @@
 	var camera, scene, renderer;
 	var cubeCamera, baseMaterial;
 	var mSphere, cubeMapFlatView;
-	var initMaterial, flatMaterial, shinyMaterial;
+	var initMaterial, flatMaterial, shinyMaterial, glMaterial;
 
 	init();
 
@@ -266,23 +266,26 @@
 
 	function addGeo( objName ) {
 
-		loader = new THREE.OBJLoader();
+		var l = new THREE.LoadingManager();
+		l.onLoad = function() {
+ 			console.log( 'Ready()' ); 
+			ready(); 
+		};
+
+		loader = new THREE.OBJLoader( l );
 		loader.load( "geo/" + objName + ".obj", function ( object ) {
 
-			loader = new THREE.TextureLoader();
+			loader = new THREE.TextureLoader( l );
 			flatMaterial = new THREE.MeshBasicMaterial( { } );
-			flatMaterial.map = loader.load( "img/" + objName + "_blur.jpg",
-										function (texture) {
-											ready();
-										} );
+			flatMaterial.map = loader.load( "img/" + objName + "_blur.jpg" );
 
-			var glMaterial = new THREE.MeshBasicMaterial();
+			glMaterial = new THREE.MeshBasicMaterial( { color: 0x9b3aa8 } );
 			glMaterial.map = flatMaterial.map
 			
 		    object.traverse( function ( child ) {
 
 		        if ( child instanceof THREE.Mesh ) {
-		            child.material = shinyMaterial;
+		            child.material = flatMaterial;
 		        }
 
 		    } );
@@ -370,10 +373,11 @@
 
 		}
 
-		var l = new THREE.LoadingManager( function() { 
-			console.log( 'onLoad' ); 
+		var l = new THREE.LoadingManager();
+		l.onLoad = function() {
+ 			console.log( 'Prepare()' ); 
 			prepare(); 
-		} );
+		};
 
 		var t = new THREE.TextureLoader( l );
 		t.load( 'img/diffuse_map.jpg', function( t ) { diffuseTexture = t; } );
@@ -388,10 +392,11 @@
 	function ready() {
 
 		mSphere.visible = false;
-		scene.overrideMaterial = flatMaterial;
+		//scene.overrideMaterial = flatMaterial;
 		cubeCamera.updateCubeMap( renderer, scene );
-		scene.overrideMaterial = null;
+		//scene.overrideMaterial = null;
 		mSphere.visible = true;
+
 		render();
 
 	}
