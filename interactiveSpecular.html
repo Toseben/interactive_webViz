@@ -259,6 +259,7 @@
 	var cubeCamera, baseMaterial;
 	var mSphere, cubeMapFlatView;
 	var initMaterial, flatMaterial, shinyMaterial, glMaterial;
+	var ceiling, walls, floor;
 
 	init();
 
@@ -267,30 +268,44 @@
 	function addGeo( objName ) {
 
 		var l = new THREE.LoadingManager();
+
+		l.onProgress = function (item, loaded, total) {
+			console.log(item, loaded, total);
+		};
+
 		l.onLoad = function() {
  			console.log( 'Ready()' ); 
 			ready(); 
 		};
 
+
+		var group = new THREE.Object3D();
+		group.name = objName + "_GRP";
 		loader = new THREE.OBJLoader( l );
 		loader.load( "geo/" + objName + ".obj", function ( object ) {
 
 			loader = new THREE.TextureLoader( l );
-			flatMaterial = new THREE.MeshBasicMaterial( { } );
+			flatMaterial = new THREE.MeshBasicMaterial();
 			flatMaterial.map = loader.load( "img/" + objName + "_blur.jpg" );
 
 			glMaterial = new THREE.MeshBasicMaterial( { color: 0x9b3aa8 } );
-			glMaterial.map = flatMaterial.map
-			
+
 		    object.traverse( function ( child ) {
 
 		        if ( child instanceof THREE.Mesh ) {
 		            child.material = flatMaterial;
+		            child.name = objName + "_GEO";
 		        }
 
 		    } );
-			scene.add( object );
+
+		    object.name = objName + "_MESH";
+			group.add( object );
+			scene.add(group);
+
 		} );
+
+		return group;
 
 	}
 
@@ -302,9 +317,11 @@
 		document.body.appendChild( container );
 
 		scene = new THREE.Scene();
+		scene.name = "scene";
 
 		camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.01, 1000 );
 		camera.position.set( 3, 0.75, 0 );
+		camera.name = "camera";
 		scene.add( camera );
 
 		renderer = new THREE.WebGLRenderer();
@@ -321,17 +338,19 @@
 			var skyBoxGeometry = new THREE.CubeGeometry( 100, 100, 100 );
 			var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.BackSide } );
 			var skyBox = new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
+			skyBox.name = "skyBox";
 			scene.add( skyBox );
 
 			// Load Geometry
-			var ceiling = addGeo( "ceiling" );
-			var walls = addGeo( "walls" );
-			var floor = addGeo( "floor" );
+			ceiling = addGeo( "ceiling" );
+			walls = addGeo( "walls" );
+			floor = addGeo( "floor" );
 
 			// Create CubeCamera
 			cubeCamera = new THREE.CubeCamera( 0.00000001, 10, 256 );
 			cubeCamera.renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
 			cubeCamera.position.set( 0, 1, 0 );
+			cubeCamera.name = "cubeCamera";
 			scene.add( cubeCamera );
 
 			///////////////////
@@ -368,6 +387,7 @@
 			mSphere = new THREE.Mesh( mSphereGeo, mSphereMat );
 			var mSpherePos = new THREE.Vector3( -0.75, 1, 0.75 );
 			mSphere.position.copy( mSpherePos );
+			mSphere.name = "HDR_Ball";
 			scene.add(mSphere);
 			cubeMapFlatView = new THREE.CubeMapFlatView( cubeCamera.renderTarget.texture, 128, 5, 5 );
 
@@ -376,7 +396,7 @@
 		var l = new THREE.LoadingManager();
 		l.onLoad = function() {
  			console.log( 'Prepare()' ); 
-			prepare(); 
+			prepare();
 		};
 
 		var t = new THREE.TextureLoader( l );
