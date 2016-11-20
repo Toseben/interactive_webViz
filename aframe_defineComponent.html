@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>A-Frame - Bank</title>
+		<meta name="description" content="A-Frame - Bank">
+		<script src="https://aframe.io/releases/0.3.2/aframe.min.js"></script>
+	</head>
+	<body>
+	<script>
+
+		var saveGeo, thisElement;
+
+		// Component
+		AFRAME.registerComponent('objloader', {
+			schema: {
+				color: { default: "blue" },
+				obj: { default: "interiorBaked" }
+			},
+
+			init: function () {
+
+				thisElement = this.el.object3D;
+				var objName = this.data.obj;
+
+				// Loading Manager //
+				var l = new THREE.LoadingManager();
+
+				l.onLoad = function() {
+		 			console.log( 'Loading ' + objName + ' is done!' ); 
+		 			thisElement.add(saveGeo);
+		 			//console.log(saveGeo);
+				};
+
+				// Loader //
+				loader = new THREE.OBJLoader(l);
+
+				var output = loader.load( "geo/" + objName + ".obj", function ( object ) {
+
+					var material = new THREE.MeshBasicMaterial();
+					loader = new THREE.TextureLoader();
+
+					object.traverse( function ( child ) {
+						child.material = material;
+						child.material.map = loader.load( "img/" + objName + '_nonCompressed' + ".jpg" );
+						saveGeo = child;
+					} );
+
+			    } );
+
+				// Reference //
+		    	var material = new THREE.MeshBasicMaterial();
+			    var geometry = new THREE.SphereGeometry( 1, 16, 16 );
+			    var line = new THREE.Mesh( geometry, material );
+			    //console.log(this.el.object3D)
+			}
+		});
+	</script>
+		<!-- Scene -->
+		<a-scene id='scene' fog="type: exponential; color: #AAB; density: 0.05">
+			<!-- Geometry -->
+				<a-entity>
+					<a-entity objloader='obj: ceilingBaked'></a-entity>
+				</a-entity>
+
+				<a-entity>
+					<a-entity objloader='obj: interiorBaked'></a-entity>
+				</a-entity>
+			<!-- Sky -->
+			<a-sky color="#AAB"></a-sky>
+		</a-scene>
+	</body>
+</html>
