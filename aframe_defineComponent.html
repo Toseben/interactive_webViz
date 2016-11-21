@@ -5,6 +5,8 @@
 		<title>A-Frame - Bank</title>
 		<meta name="description" content="A-Frame - Bank">
 		<script src="https://aframe.io/releases/0.3.2/aframe.min.js"></script>
+		<script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v2.7.2/dist/aframe-extras.min.js"></script>
+
 	</head>
 	<body>
 	<script>
@@ -26,10 +28,13 @@
 				// Loading Manager //
 				var l = new THREE.LoadingManager();
 
+				l.onProgress = function (item, loaded, total) {
+				    //console.log(item, loaded, total);
+				};
+
 				l.onLoad = function() {
-		 			console.log( 'Loading ' + objName + ' is done!' ); 
+		 			//console.log( 'Loading ' + objName + ' is done!' ); 
 		 			thisElement.add(saveGeo);
-		 			//console.log(saveGeo);
 				};
 
 				// Loader //
@@ -48,24 +53,26 @@
 
 			    } );
 
-				// Reference //
-		    	var material = new THREE.MeshBasicMaterial();
-			    var geometry = new THREE.SphereGeometry( 1, 16, 16 );
-			    var line = new THREE.Mesh( geometry, material );
-			    //console.log(this.el.object3D)
+				// WAT? //
+			    var moi = new THREE.SphereGeometry( 0, 1, 1 );
 			}
 		});
 	</script>
-		<!-- Scene -->
-		<a-scene id='scene' fog="type: exponential; color: #AAB; density: 0.05">
-			<!-- Geometry -->
-				<a-entity>
-					<a-entity objloader='obj: ceilingBaked'></a-entity>
-				</a-entity>
 
-				<a-entity>
-					<a-entity objloader='obj: interiorBaked'></a-entity>
-				</a-entity>
+		<!-- Scene -->
+		<a-scene physics="gravity: 0 debug: false" 
+				 id='scene' 
+				 fog="type: exponential; color: #AAB; density: 0.05">
+			<!-- Camera -->
+			  <a-entity camera universal-controls kinematic-body position='0 1.8 0'></a-entity>
+			<!-- Geometry -->
+			<a-entity static-body>
+				<a-entity objloader='obj: ceilingBaked'></a-entity>
+			</a-entity>
+
+			<a-entity static-body>
+				<a-entity objloader='obj: interiorBaked'></a-entity>
+			</a-entity>
 			<!-- Sky -->
 			<a-sky color="#AAB"></a-sky>
 		</a-scene>
