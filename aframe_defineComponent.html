@@ -5,13 +5,28 @@
 		<title>A-Frame - Bank</title>
 		<meta name="description" content="A-Frame - Bank">
 		<script src="https://aframe.io/releases/0.3.2/aframe.min.js"></script>
-		<script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v2.7.2/dist/aframe-extras.min.js"></script>
 
 	</head>
 	<body>
 	<script>
 
-		var saveGeo, thisElement;
+		var addGeo, thisElement, loader, progressBar;
+		var RESOURCES_LOADED = false;
+
+		// Loading Manager //
+		var manager = new THREE.LoadingManager();
+
+		manager.onProgress = function (item, loaded, total) {
+			progressBar = Math.floor((loaded / total) * 100);
+		    console.log(item, progressBar + '%');
+		};
+
+		manager.onLoad = function() {
+			RESOURCES_LOADED = true;
+ 			console.log('Resources loaded!');
+ 			//thisElement.add(addGeo);
+ 			
+		};
 
 		// Component
 		AFRAME.registerComponent('objloader', {
@@ -25,53 +40,38 @@
 				thisElement = this.el.object3D;
 				var objName = this.data.obj;
 
-				// Loading Manager //
-				var l = new THREE.LoadingManager();
-
-				l.onProgress = function (item, loaded, total) {
-				    //console.log(item, loaded, total);
-				};
-
-				l.onLoad = function() {
-		 			//console.log( 'Loading ' + objName + ' is done!' ); 
-		 			thisElement.add(saveGeo);
-				};
-
 				// Loader //
-				loader = new THREE.OBJLoader(l);
+				loader = new THREE.OBJLoader(manager);
 
-				var output = loader.load( "geo/" + objName + ".obj", function ( object ) {
+				loader.load( "geo/" + objName + ".obj", function ( object ) {
 
 					var material = new THREE.MeshBasicMaterial();
-					loader = new THREE.TextureLoader();
+					loader = new THREE.TextureLoader(manager);
 
 					object.traverse( function ( child ) {
-						child.material = material;
-						child.material.map = loader.load( "img/" + objName + '_nonCompressed' + ".jpg" );
-						saveGeo = child;
+						if (child instanceof THREE.Mesh) {
+							child.material = material;
+							child.material.map = loader.load( "img/" + objName + '_nonCompressed' + ".jpg" );
+							addGeo = child;
+						}	
 					} );
 
 			    } );
 
-				// WAT? //
-			    var moi = new THREE.SphereGeometry( 0, 1, 1 );
 			}
 		});
 	</script>
 
 		<!-- Scene -->
-		<a-scene physics="gravity: 0 debug: false" 
-				 id='scene' 
+		<a-scene id='scene' 
 				 fog="type: exponential; color: #AAB; density: 0.05">
-			<!-- Camera -->
-			  <a-entity camera universal-controls kinematic-body position='0 1.8 0'></a-entity>
 			<!-- Geometry -->
-			<a-entity static-body>
+			<a-entity>
 				<a-entity objloader='obj: ceilingBaked'></a-entity>
 			</a-entity>
 
-			<a-entity static-body>
-				<a-entity objloader='obj: interiorBaked'></a-entity>
+			<a-entity>
+				<a-entity objloader='obj: interiorBaked' position=></a-entity>
 			</a-entity>
 			<!-- Sky -->
 			<a-sky color="#AAB"></a-sky>
