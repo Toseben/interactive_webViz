@@ -10,13 +10,11 @@
 				display: block;
 	        }
 	    </style>
-		<title>A-Frame - Bank</title>
-		<meta name="description" content="A-Frame - Bank">
+		<title>Bank Office Interior</title>
+		<meta name="description" content="VR Interior Visualisation">
 		<script src="https://aframe.io/releases/0.3.2/aframe.min.js"></script>
 		<script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v2.7.2/dist/aframe-extras.min.js"></script>
 		<script src="js/progressbar.js"></script>
-		
-
 	</head>
 	<body>	
 
@@ -30,12 +28,18 @@
 			duration: 0,
 			color: '#FFEA82',
 			trailColor: '#eee',
-			trailWidth: 1,
+			trailWidth: 4,
 			svgStyle: null,
 			from: {color: '#FFEA82'},
 			to: {color: '#ED6A5A'},
 			step: (state, bar) => {
 				bar.path.setAttribute('stroke', state.color);
+				var value = Math.round(bar.value() * 100);
+				if (value === 100) {
+					setTimeout(function () {
+						document.getElementById("progress").style.display = "none";
+						}, 250);
+				}
 			}
 		} );
 
@@ -49,30 +53,25 @@
 			progressBar = loaded / total;
 			bar.animate(progressBar);
 			thisElement.add(addGeo);
-		    //console.log(item, Math.floor(progressBar * 100) + '% loaded!');
+		    console.log(item, Math.floor(progressBar * 100) + '% loaded!');
 		};
 
 		manager.onLoad = function() {
 			RESOURCES_LOADED = true;
  			console.log('Resources loaded!');
- 			
- 			setTimeout(function () {
-				document.getElementById("progress").style.display = "none";
-			    }, 250);
- 
 		};
 
 		// Component
 		AFRAME.registerComponent('objloader', {
 			schema: {
 				color: { default: "blue" },
-				obj: { default: "interiorBaked" }
+				file: { default: "interiorBaked" }
 			},
 
 			init: function () {
 
 				thisElement = this.el.object3D;
-				var objName = this.data.obj;
+				var objName = this.data.file;
 
 				// Loader //
 				loader = new THREE.OBJLoader(manager);
@@ -100,15 +99,17 @@
 				 id='scene' 
 				 fog="type: exponential; color: #AAB; density: 0.05">
 			<!-- Camera -->
-			  <a-entity camera universal-controls kinematic-body position='0 1.8 0'></a-entity>
+			<a-entity camera 
+					  universal-controls 
+					  kinematic-body 
+					  position="0 1.8 0">
+			  </a-entity>
 			<!-- Geometry -->
-			<a-entity static-body>
-				<a-entity objloader='obj: ceilingBaked'></a-entity>
-			</a-entity>
-
-			<a-entity static-body>
-				<a-entity objloader='obj: interiorBaked'></a-entity>
-			</a-entity>
+			<a-entity objloader='file: interiorBaked'
+					  position="0 0 0"></a-entity>
+			<a-entity objloader='file: ceilingBaked' 
+					  position="0 0 0" 
+					  static-body></a-entity>
 			<!-- Sky -->
 			<a-sky color="#AAB"></a-sky>
 		</a-scene>
