@@ -99,6 +99,7 @@
 				 id='scene' 
 				 fog="type: exponential; color: #AAB; density: 0.05">
 			<!-- Camera -->
+<<<<<<< HEAD
 			<a-entity camera 
 					  universal-controls 
 					  kinematic-body 
@@ -110,6 +111,12 @@
 			<a-entity objloader='file: ceilingBaked' 
 					  position="0 0 0" 
 					  static-body></a-entity>
+=======
+			<a-entity camera position='0 2 0' wasd-controls look-controls kinematic-body></a-entity>
+			<!-- Geometry -->
+			<a-entity static-body objloader='obj: ceilingBaked'></a-entity>
+			<a-entity static-body objloader='obj: interiorBaked'></a-entity>
+>>>>>>> origin/gh-pages
 			<!-- Sky -->
 			<a-sky color="#AAB"></a-sky>
 		</a-scene>
