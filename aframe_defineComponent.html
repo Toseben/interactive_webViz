@@ -35,7 +35,6 @@
 			step: (state, bar) => {
 				bar.path.setAttribute('stroke', state.color);
 				var value = Math.round(bar.value() * 100);
-				console.log(value);
 				if (value === 100) {
 					setTimeout(function () {
 						document.getElementById("progress").style.display = "none";
@@ -54,7 +53,7 @@
 			progressBar = loaded / total;
 			bar.animate(progressBar);
 			thisElement.add(addGeo);
-		    //console.log(item, Math.floor(progressBar * 100) + '% loaded!');
+		    console.log(item, Math.floor(progressBar * 100) + '% loaded!');
 		};
 
 		manager.onLoad = function() {
