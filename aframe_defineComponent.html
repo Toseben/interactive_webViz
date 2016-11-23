@@ -2,13 +2,42 @@
 <html>
 	<head>
 		<meta charset="utf-8">
+		<style type="text/css">
+	        #progress {
+				max-width: 250px;
+				height: 100%;
+				margin: 20% auto;
+				display: block;
+	        }
+	    </style>
 		<title>A-Frame - Bank</title>
 		<meta name="description" content="A-Frame - Bank">
 		<script src="https://aframe.io/releases/0.3.2/aframe.min.js"></script>
+		<script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v2.7.2/dist/aframe-extras.min.js"></script>
+		<script src="js/progressbar.js"></script>
+		
 
 	</head>
-	<body>
+	<body>	
+
+		<div id="progress"></div>
+
 	<script>
+
+		var bar = new ProgressBar.Circle(progress, {
+			strokeWidth: 4,
+			easing: 'easeInOut',
+			duration: 0,
+			color: '#FFEA82',
+			trailColor: '#eee',
+			trailWidth: 1,
+			svgStyle: null,
+			from: {color: '#FFEA82'},
+			to: {color: '#ED6A5A'},
+			step: (state, bar) => {
+				bar.path.setAttribute('stroke', state.color);
+			}
+		} );
 
 		var addGeo, thisElement, loader, progressBar;
 		var RESOURCES_LOADED = false;
@@ -17,15 +46,20 @@
 		var manager = new THREE.LoadingManager();
 
 		manager.onProgress = function (item, loaded, total) {
-			progressBar = Math.floor((loaded / total) * 100);
-		    console.log(item, progressBar + '%');
+			progressBar = loaded / total;
+			bar.animate(progressBar);
+			thisElement.add(addGeo);
+		    //console.log(item, Math.floor(progressBar * 100) + '% loaded!');
 		};
 
 		manager.onLoad = function() {
 			RESOURCES_LOADED = true;
  			console.log('Resources loaded!');
- 			//thisElement.add(addGeo);
  			
+ 			setTimeout(function () {
+				document.getElementById("progress").style.display = "none";
+			    }, 250);
+ 
 		};
 
 		// Component
@@ -55,23 +89,25 @@
 							addGeo = child;
 						}	
 					} );
-
 			    } );
 
 			}
-		});
+		} );
 	</script>
 
 		<!-- Scene -->
-		<a-scene id='scene' 
+		<a-scene physics="gravity: 0; debug: true" 
+				 id='scene' 
 				 fog="type: exponential; color: #AAB; density: 0.05">
+			<!-- Camera -->
+			  <a-entity camera universal-controls kinematic-body position='0 1.8 0'></a-entity>
 			<!-- Geometry -->
-			<a-entity>
+			<a-entity static-body>
 				<a-entity objloader='obj: ceilingBaked'></a-entity>
 			</a-entity>
 
-			<a-entity>
-				<a-entity objloader='obj: interiorBaked' position=></a-entity>
+			<a-entity static-body>
+				<a-entity objloader='obj: interiorBaked'></a-entity>
 			</a-entity>
 			<!-- Sky -->
 			<a-sky color="#AAB"></a-sky>
