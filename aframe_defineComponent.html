@@ -10,13 +10,11 @@
 				display: block;
 	        }
 	    </style>
-		<title>A-Frame - Bank</title>
-		<meta name="description" content="A-Frame - Bank">
+		<title>Bank Office Interior</title>
+		<meta name="description" content="VR Interior Visualisation">
 		<script src="https://aframe.io/releases/0.3.2/aframe.min.js"></script>
 		<script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v2.7.2/dist/aframe-extras.min.js"></script>
 		<script src="js/progressbar.js"></script>
-		
-
 	</head>
 	<body>	
 
@@ -30,12 +28,19 @@
 			duration: 0,
 			color: '#FFEA82',
 			trailColor: '#eee',
-			trailWidth: 1,
+			trailWidth: 4,
 			svgStyle: null,
 			from: {color: '#FFEA82'},
 			to: {color: '#ED6A5A'},
 			step: (state, bar) => {
 				bar.path.setAttribute('stroke', state.color);
+				var value = Math.round(bar.value() * 100);
+				console.log(value);
+				if (value === 100) {
+					setTimeout(function () {
+						document.getElementById("progress").style.display = "none";
+						}, 250);
+				}
 			}
 		} );
 
@@ -55,11 +60,6 @@
 		manager.onLoad = function() {
 			RESOURCES_LOADED = true;
  			console.log('Resources loaded!');
- 			
- 			setTimeout(function () {
-				document.getElementById("progress").style.display = "none";
-			    }, 250);
- 
 		};
 
 		// Component
@@ -100,15 +100,10 @@
 				 id='scene' 
 				 fog="type: exponential; color: #AAB; density: 0.05">
 			<!-- Camera -->
-			  <a-entity camera universal-controls kinematic-body position='0 1.8 0'></a-entity>
+			<a-entity camera position='0 2 0' wasd-controls look-controls kinematic-body></a-entity>
 			<!-- Geometry -->
-			<a-entity static-body>
-				<a-entity objloader='obj: ceilingBaked'></a-entity>
-			</a-entity>
-
-			<a-entity static-body>
-				<a-entity objloader='obj: interiorBaked'></a-entity>
-			</a-entity>
+			<a-entity static-body objloader='obj: ceilingBaked'></a-entity>
+			<a-entity static-body objloader='obj: interiorBaked'></a-entity>
 			<!-- Sky -->
 			<a-sky color="#AAB"></a-sky>
 		</a-scene>
