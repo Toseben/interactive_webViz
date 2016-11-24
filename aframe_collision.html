@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<style type="text/css">
+	        #progress {
+				max-width: 250px;
+				height: 100%;
+				margin: 20% auto;
+				display: block;
+	        }
+	    </style>
+		<title>Bank Office Interior</title>
+		<meta name="description" content="VR Interior Visualisation">
+		<script src="https://aframe.io/releases/0.3.2/aframe.min.js"></script>
+		<script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v2.7.2/dist/aframe-extras.min.js"></script>
+		<script src="js/progressbar.js"></script>
+	</head>
+	<body>	
+
+		<div id="progress"></div>
+
+	<script>
+
+		var loader;
+		var manager = new THREE.LoadingManager();
+
+		manager.onProgress = function (item, loaded, total) {
+			progressBar = loaded / total;
+			bar.animate(progressBar);
+		    console.log(item, Math.floor(progressBar * 100) + '% loaded!');
+		};
+
+		manager.onLoad = function() {
+			RESOURCES_LOADED = true;
+ 			console.log('Resources loaded!');
+		};
+
+
+		var bar = new ProgressBar.Circle(progress, {
+			strokeWidth: 4,
+			easing: 'easeInOut',
+			duration: 0,
+			color: '#FFEA82',
+			trailColor: '#eee',
+			trailWidth: 4,
+			svgStyle: null,
+			from: {color: '#FFEA82'},
+			to: {color: '#ED6A5A'},
+			step: (state, bar) => {
+				bar.path.setAttribute('stroke', state.color);
+				var value = Math.round(bar.value() * 100);
+				if (value === 100) {
+					setTimeout(function () {
+						document.getElementById("progress").style.display = "none";
+						}, 250);
+				}
+			}
+		} );
+
+		AFRAME.registerShader('custom', {
+			schema: {
+				texture: { default: "null" }
+			},
+			init: function (data) {
+				loader = new THREE.TextureLoader(manager);
+    			this.material = new THREE.MeshBasicMaterial();
+    			this.material.map = loader.load( "img/" + data.texture + ".jpg" );
+    		}
+		});
+		
+	</script>
+
+		<!-- Scene -->
+		<a-scene physics="debug: true; gravity: 0">
+			<a-assets>
+				<img id="ceilingTexture" src="img/ceilingBaked.jpg">
+				<img id="interiorTexture" src="img/interiorBaked.jpg">
+			</a-assets>
+			<!-- Camera -->
+			<a-entity camera position='0 2 0' universal-controls kinematic-body></a-entity>
+			<!-- Geometry -->
+			<a-obj-model static-body 
+						 src="geo/interiorBaked.obj"
+						 material="shader: custom; texture: interiorBaked"></a-obj-model>
+ 			<a-obj-model static-body 
+						 src="geo/ceilingBaked.obj"
+						 material="shader: custom; texture: ceilingBaked"></a-obj-model>
+		</a-scene>
+	</body>
+</html>
