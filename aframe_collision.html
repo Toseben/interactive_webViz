@@ -72,25 +72,32 @@
 	</script>
 
 		<!-- Scene -->
-		<a-scene physics="gravity: -1">
+		<a-scene antialias="true" 
+				 physics="gravity: -1">
 			<!-- Camera -->
-			<a-entity camera id='camera' position='0 1.75 2' 
+			<a-entity camera id='camera' position='0 1.65 2' 
 							 universal-controls kinematic-body></a-entity>
 			<!-- Geometry -->
-			<a-obj-model src="geo/ceilingDetail.obj" rotation='0 -90 0' 
-						 material="shader: custom; texture: ceilingDetail"></a-obj-model>
-			<a-obj-model static-body
-						 src="geo/additionalDetail.obj" rotation='0 -90 0' 
-						 material="shader: custom; texture: additionalDetail"></a-obj-model>
- 			<a-obj-model static-body 
- 						 src="geo/interior.obj" rotation='0 -90 0' 
-						 material="shader: custom; texture: interior"></a-obj-model>
- 			<a-obj-model static-body 
- 						 src="geo/ceilingAndFloor.obj" rotation='0 -90 0' 
+ 			<a-obj-model static-body
+  						 src="geo/ceilingAndFloor.obj" rotation='0 -90 0' 
 						 material="shader: custom; texture: ceilingAndFloor"></a-obj-model>
- 			<a-obj-model static-body 
- 						 src="geo/furniture.obj" rotation='0 -90 0' 
-						 material="shader: custom; texture: furniture"></a-obj-model>
+ 			<a-obj-model static-body
+  						 src="geo/interior.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: interior"></a-obj-model>
+ 			<a-obj-model static-body
+  						 src="geo/additionalDetail.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: additionalDetail"></a-obj-model>
+ 			<a-obj-model static-body
+  						 src="geo/blinds.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: blinds"></a-obj-model>
+ 			<a-obj-model static-body
+  						 src="geo/furniture_01.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: furniture_01"></a-obj-model>
+ 			<a-obj-model static-body
+  						 src="geo/furniture_02.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: furniture_02"></a-obj-model>
+  			<a-obj-model src="geo/ceilingDetail.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: ceilingDetail"></a-obj-model>
 			 <a-sky src="img/HDR.jpg" rotation="0 90 0"></a-sky>
 		</a-scene>
 	</body>
