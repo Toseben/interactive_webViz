@@ -15,6 +15,8 @@
 		<script src="https://aframe.io/releases/0.3.2/aframe.min.js"></script>
 		<script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v2.7.2/dist/aframe-extras.min.js"></script>
 		<script src="js/progressbar.js"></script>
+		<script src="js/FresnelShader.js"></script>
+
 	</head>
 	<body>	
 
@@ -69,11 +71,57 @@
     		}
 		});
 
+		AFRAME.registerShader('refr', {
+			schema: {},
+			init: function (data) {
+				var path = "img/";
+				var format = '.jpg';
+				var urlsReflect = [
+						path + 'reflect' + format, path + 'reflect' + format,
+						path + 'reflect' + format, path + 'reflect' + format,
+						path + 'reflect' + format, path + 'reflect' + format
+					];
+
+				var urlsRefract = [
+						path + 'refract_1' + format, path + 'refract_2' + format,
+						path + 'refract_3' + format, path + 'refract_4' + format,
+						path + 'refract_5' + format, path + 'refract_6' + format
+					];
+
+				var reflectionCube = new THREE.CubeTextureLoader().load( urlsReflect );
+				reflectionCube.format = THREE.RGBFormat;
+
+				var refractionCube = new THREE.CubeTextureLoader().load( urlsRefract );
+				refractionCube.mapping = THREE.CubeRefractionMapping;
+				refractionCube.format = THREE.RGBFormat;
+
+				var fShader = THREE.FresnelShader;
+
+				var fresnelUniforms = 
+				{
+				"mRefractionRatio": { type: "f", value: 1.02 },
+				"mFresnelBias": 	{ type: "f", value: 0.05 },
+				"mFresnelPower": 	{ type: "f", value: 2.0 },
+				"mFresnelScale": 	{ type: "f", value: 1.0 },
+				"reflectionCube": 			{ type: "t", value: reflectionCube },
+				"refractionCube": 			{ type: "t", value: refractionCube }
+				};
+
+				var customMaterial = new THREE.ShaderMaterial( 
+				{
+					uniforms: 		fresnelUniforms,
+						vertexShader:   fShader.vertexShader,
+						fragmentShader: fShader.fragmentShader
+				}   );
+
+    			this.material = customMaterial;
+    		}
+		});
+
 	</script>
 
 		<!-- Scene -->
-		<a-scene antialias="true" 
-				 physics="gravity: -1">
+		<a-scene physics="gravity: -1; debug: false">
 			<!-- Camera -->
 			<a-entity camera id='camera' position='0 1.65 2' 
 							 universal-controls kinematic-body></a-entity>
@@ -96,8 +144,16 @@
  			<a-obj-model static-body
   						 src="geo/furniture_02.obj" rotation='0 -90 0' 
 						 material="shader: custom; texture: furniture_02"></a-obj-model>
+ 			<a-obj-model src="geo/stools.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: stools"></a-obj-model>
+ 			<a-obj-model src="geo/officeChair.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: officeChair"></a-obj-model>
   			<a-obj-model src="geo/ceilingDetail.obj" rotation='0 -90 0' 
 						 material="shader: custom; texture: ceilingDetail"></a-obj-model>
+
+     		<a-obj-model src="geo/windows.obj" rotation='0 -90 0' 
+     				  material="shader: refr"></a-sphere>
+
 			 <a-sky src="img/HDR.jpg" rotation="0 90 0"></a-sky>
 		</a-scene>
 	</body>
