@@ -77,9 +77,9 @@
 				var path = "img/";
 				var format = '.jpg';
 				var urlsReflect = [
-						path + 'reflect' + format, path + 'reflect' + format,
-						path + 'reflect' + format, path + 'reflect' + format,
-						path + 'reflect' + format, path + 'reflect' + format
+						path + 'reflect_1' + format, path + 'reflect_2' + format,
+						path + 'reflect_3' + format, path + 'reflect_4' + format,
+						path + 'reflect_5' + format, path + 'reflect_6' + format
 					];
 
 				var urlsRefract = [
@@ -101,8 +101,8 @@
 				{
 				"mRefractionRatio": { type: "f", value: 1.02 },
 				"mFresnelBias": 	{ type: "f", value: 0.05 },
-				"mFresnelPower": 	{ type: "f", value: 2.0 },
-				"mFresnelScale": 	{ type: "f", value: 1.0 },
+				"mFresnelPower": 	{ type: "f", value: 4.0 },
+				"mFresnelScale": 	{ type: "f", value: 0.25 },
 				"reflectionCube": 			{ type: "t", value: reflectionCube },
 				"refractionCube": 			{ type: "t", value: refractionCube }
 				};
@@ -123,8 +123,10 @@
 		<!-- Scene -->
 		<a-scene physics="gravity: -1; debug: false">
 			<!-- Camera -->
-			<a-entity camera id='camera' position='0 1.65 2' 
+			<a-entity camera id='camera' position='0 1.75 2' 
 							 universal-controls kinematic-body></a-entity>
+			 <a-entity camera id='camera2' position='0 1.75 4' 
+							 universal-controls></a-entity>
 			<!-- Geometry -->
  			<a-obj-model static-body
   						 src="geo/ceilingAndFloor.obj" rotation='0 -90 0' 
@@ -139,22 +141,25 @@
   						 src="geo/blinds.obj" rotation='0 -90 0' 
 						 material="shader: custom; texture: blinds"></a-obj-model>
  			<a-obj-model static-body
-  						 src="geo/furniture_01.obj" rotation='0 -90 0' 
-						 material="shader: custom; texture: furniture_01"></a-obj-model>
- 			<a-obj-model static-body
-  						 src="geo/furniture_02.obj" rotation='0 -90 0' 
-						 material="shader: custom; texture: furniture_02"></a-obj-model>
+  						 src="geo/furniture.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: furniture"></a-obj-model>
+ 			<a-obj-model src="geo/moreFurniture.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: moreFurniture"></a-obj-model>
  			<a-obj-model src="geo/stools.obj" rotation='0 -90 0' 
 						 material="shader: custom; texture: stools"></a-obj-model>
  			<a-obj-model src="geo/officeChair.obj" rotation='0 -90 0' 
 						 material="shader: custom; texture: officeChair"></a-obj-model>
   			<a-obj-model src="geo/ceilingDetail.obj" rotation='0 -90 0' 
 						 material="shader: custom; texture: ceilingDetail"></a-obj-model>
-
      		<a-obj-model src="geo/windows.obj" rotation='0 -90 0' 
      				  material="shader: refr"></a-sphere>
 
-			 <a-sky src="img/HDR.jpg" rotation="0 90 0"></a-sky>
+		  	<a-box static-body position="-1.25 1.1 1.5" width="0.25" height="2.2" depth="1" 
+		  		   opacity="0"></a-box>
+		  	<a-box static-body position="-1.25 1.1 -2.25" width="0.25" height="2.2" depth="1" 
+		  		   opacity="0"></a-box>
+
+			<a-sky src="img/HDR.jpg" rotation="0 90 0"></a-sky>
 		</a-scene>
 	</body>
 </html>
