@@ -29,7 +29,7 @@
 
 		manager.onProgress = function (item, loaded, total) {
 			progressBar = loaded / total;
-			bar.animate(progressBar);
+			bar.animate(progressBar * 0.8);
 		    console.log(item, Math.floor(progressBar * 100) + '% loaded!');
 		};
 
@@ -38,6 +38,9 @@
  			console.log('Resources loaded!');
 		};
 
+		window.onload = function() {
+			bar.animate(1);
+		};
 
 		var bar = new ProgressBar.Circle(progress, {
 			strokeWidth: 4,
@@ -55,7 +58,7 @@
 				if (value === 100) {
 					setTimeout(function () {
 						document.getElementById("progress").style.display = "none";
-						}, 250);
+						}, 500);
 				}
 			}
 		} );
