@@ -1,16 +1,198 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>INTER_ACTIVE</title>
-		<a href="bakedLighting.html">Baked Lighting</a><br>
-		<a href="bakedLighting_bank.html">Baked Lighting - Bank</a><br>
-		<a href="aframe_defineComponent.html">A-Frame - Bank</a><br>
-		<a href="aframe_collision.html">A-Frame - Collision</a><br>
-		<a href="aframe_defineComponent_gravity.html">A-Frame Gravity - Bank</a><br>
-		<a href="interactiveSpecular.html">Interactive Specular</a><br>
-		<a href="aframe_final.html">Bank Final</a><br>
-	</head>
-	<body>
+		<meta charset="utf-8">
+		<style type="text/css">
+	        #progress {
+				max-width: 250px;
+				height: 100%;
+				margin: 20% auto;
+				display: block;
+	        }
+	    </style>
+		<title>Bank Office Interior</title>
+		<meta name="description" content="VR Interior Visualisation">
+		<script src="https://aframe.io/releases/0.3.2/aframe.min.js"></script>
+		<script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v2.7.2/dist/aframe-extras.min.js"></script>
+		<script src="js/progressbar.js"></script>
+		<script src="js/FresnelShader.js"></script>
 
+	</head>
+	<body>	
+
+		<div id="progress"></div>
+
+	<script>
+
+		var loader;
+		var manager = new THREE.LoadingManager();
+
+		manager.onProgress = function (item, loaded, total) {
+			progressBar = loaded / total;
+			bar.animate(progressBar * 0.8);
+		    console.log(item, Math.floor(progressBar * 100) + '% loaded!');
+		};
+
+		manager.onLoad = function() {
+			RESOURCES_LOADED = true;
+ 			console.log('Resources loaded!');
+		};
+
+		window.onload = function() {
+			bar.animate(1);
+		};
+
+		var bar = new ProgressBar.Circle(progress, {
+			strokeWidth: 4,
+			easing: 'easeInOut',
+			duration: 0,
+			color: '#FFEA82',
+			trailColor: '#eee',
+			trailWidth: 4,
+			svgStyle: null,
+			from: {color: '#FFEA82'},
+			to: {color: '#ED6A5A'},
+			step: (state, bar) => {
+				bar.path.setAttribute('stroke', state.color);
+				var value = Math.round(bar.value() * 100);
+				if (value === 100) {
+					setTimeout(function () {
+						document.getElementById("progress").style.display = "none";
+						}, 500);
+				}
+			}
+		} );
+
+		AFRAME.registerShader('custom', {
+			schema: {
+				texture: { default: "null" }
+			},
+			init: function (data) {
+				loader = new THREE.TextureLoader(manager);
+    			this.material = new THREE.MeshBasicMaterial();
+    			this.material.map = loader.load( "img/final/" + data.texture + ".jpg" );
+    		}
+		});
+
+		AFRAME.registerShader('refr', {
+			schema: {},
+			init: function (data) {
+				var path = "img/";
+				var format = '.jpg';
+				var urlsReflect = [
+						path + 'reflect_1' + format, path + 'reflect_2' + format,
+						path + 'reflect_3' + format, path + 'reflect_4' + format,
+						path + 'reflect_5' + format, path + 'reflect_6' + format
+					];
+
+				var urlsRefract = [
+						path + 'refract_1' + format, path + 'refract_2' + format,
+						path + 'refract_3' + format, path + 'refract_4' + format,
+						path + 'refract_5' + format, path + 'refract_6' + format
+					];
+
+				var reflectionCube = new THREE.CubeTextureLoader().load( urlsReflect );
+				reflectionCube.format = THREE.RGBFormat;
+
+				var refractionCube = new THREE.CubeTextureLoader().load( urlsRefract );
+				refractionCube.mapping = THREE.CubeRefractionMapping;
+				refractionCube.format = THREE.RGBFormat;
+
+				var fShader = THREE.FresnelShader;
+
+				var fresnelUniforms = 
+				{
+				"mRefractionRatio": { type: "f", value: 1.02 },
+				"mFresnelBias": 	{ type: "f", value: 0.05 },
+				"mFresnelPower": 	{ type: "f", value: 4.0 },
+				"mFresnelScale": 	{ type: "f", value: 0.25 },
+				"reflectionCube": 			{ type: "t", value: reflectionCube },
+				"refractionCube": 			{ type: "t", value: refractionCube }
+				};
+
+				var customMaterial = new THREE.ShaderMaterial( 
+				{
+					uniforms: 		fresnelUniforms,
+						vertexShader:   fShader.vertexShader,
+						fragmentShader: fShader.fragmentShader
+				}   );
+
+    			this.material = customMaterial;
+    		}
+		});
+
+	</script>
+
+		<!-- Scene -->
+		<a-scene physics="gravity: -1; debug: false">
+			<!-- Camera -->
+			<a-entity camera id='camera' position='0 1.7 1.5' 
+							 universal-controls kinematic-body></a-entity>
+
+			<!-- Geometry -->
+ 			<a-obj-model static-body
+  						 src="geo/final/ceilingAndFloor.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: ceilingAndFloor"></a-obj-model>
+ 			<a-obj-model src="geo/final/interior.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: interior"></a-obj-model>
+ 			<a-obj-model src="geo/final/additionalDetail.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: additionalDetail"></a-obj-model>
+ 			<a-obj-model src="geo/final/blinds.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: blinds"></a-obj-model>
+ 			<a-obj-model src="geo/final/furniture.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: furniture"></a-obj-model>
+ 			<a-obj-model src="geo/final/stools.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: stools"></a-obj-model>
+ 			<a-obj-model src="geo/final/moreFurniture.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: moreFurniture"></a-obj-model>
+ 			<a-obj-model src="geo/final/officeChair.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: officeChair"></a-obj-model>
+ 			<a-obj-model src="geo/final/officeTable.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: officeTable"></a-obj-model>
+ 			<a-obj-model src="geo/final/smallDrawer.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: smallDrawer"></a-obj-model>
+ 			<a-obj-model src="geo/final/largeDrawer.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: largeDrawer"></a-obj-model>						 
+ 			<a-obj-model src="geo/final/sofas.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: sofas"></a-obj-model>
+ 			<a-obj-model src="geo/final/bar.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: bar"></a-obj-model>
+ 			<a-obj-model src="geo/final/extra.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: extra"></a-obj-model>
+  			<a-obj-model src="geo/final/ceilingDetail.obj" rotation='0 -90 0' 
+						 material="shader: custom; texture: ceilingDetail"></a-obj-model>
+     		<a-obj-model src="geo/final/windows.obj" rotation='0 -90 0' 
+     				  material="shader: refr"></a-sphere>
+
+	  		<!-- Collisions -->
+		  	<a-box static-body position="-1 1.1 2" width="0.1" height="2.2" depth="1" 
+		  		   opacity="0"></a-box>
+		  	<a-box static-body position="-1 1.1 -2.25" width="0.1" height="2.2" depth="1" 
+		  		   opacity="0"></a-box>
+		  	<a-box static-body position="0 1.5 -3.25" width="12.5" height="3" depth="0.1" 
+		  		   opacity="0"></a-box>
+		  	<a-box static-body position="0 1.5 3.25" width="12.5" height="3" depth="0.1" 
+		  		   opacity="0"></a-box>
+		  	<a-box static-body position="6.75 1.5 0" width="0.1" height="3" depth="4" 
+		  		   opacity="0"></a-box>
+		  	<a-box static-body position="-6.75 1.5 0" width="0.1" height="3" depth="4" 
+		  		   opacity="0"></a-box>
+		  	<a-box static-body position="-5.6 0.4 0" width="0.75" height="0.8" depth="4" 
+		  		   opacity="0"></a-box>
+		  	<a-box static-body position="-3.2 1 1" width="0.1" height="2" depth="2.5" 
+		  		   opacity="0"></a-box>
+		  	<a-box static-body position="1.4 0.75 1.75" width="0.025" height="1.5" depth="0.5" 
+		  		   opacity="0"></a-box>
+		  	<a-box static-body position="4.1 0.75 1.75" width="0.025" height="1.5" depth="0.5" 
+		  		   opacity="0"></a-box>
+		  	<a-box static-body position="1.4 0.75 -1.75" width="0.025" height="1.5" depth="0.5" 
+		  		   opacity="0"></a-box>
+		  	<a-box static-body position="4.1 0.75 -1.75" width="0.025" height="1.5" depth="0.5" 
+		  		   opacity="0"></a-box>
+
+  		    <!-- Sky -->
+			<a-sky src="img/HDR.jpg" rotation="0 90 0"></a-sky>
+		</a-scene>
 	</body>
 </html>
+
